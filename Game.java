@@ -11,7 +11,7 @@ public class Game {
 	private int delay = 100;
 	private boolean isQuit;
 	private IntroGUI introGUI;
-	private TheoGUI theoGUI;
+	private MainGUI mainGUI;
 	private Board board;
 	private boolean paused = true;
 	private String state = "new";
@@ -52,7 +52,7 @@ public class Game {
 		this.z = this.parameters[4];
 		if (this.getState().equals("new")) {
 			this.board = new Board(this.parameters[0], this.parameters[1]);
-			this.theoGUI = new TheoGUI(board.getWidth(), board.getHeight(), board, this);
+			this.mainGUI = new MainGUI(board.getWidth(), board.getHeight(), board, this);
 		} else if (this.getState().equals("load")) {
 			this.loadGame(this.filename);
 		}
@@ -70,16 +70,16 @@ public class Game {
 		}
 	}
 
-	public void saveGameBoard(String input) throws Exception {
+	public void saveGameBoard(String input, String comment, Board board) throws Exception {
 		this.paused = true;
 		String name = input;
 		BufferedWriter writer = new BufferedWriter(new FileWriter(name));
-		writer.write(this.board.getHeight() + "," + this.board.getWidth());
+		writer.write(board.getHeight() + "," + board.getWidth());
 		writer.newLine();
 		String line = "";
-		for (int i = 0; i < this.board.getHeight(); i++) {
-			for (int j = 0; j < this.board.getWidth(); j++) {
-				if (this.board.getIndex(i, j)) {
+		for (int i = 0; i < board.getHeight(); i++) {
+			for (int j = 0; j < board.getWidth(); j++) {
+				if (board.getIndex(i, j)) {
 					line += "1";
 				} else {
 					line += "0";
@@ -121,10 +121,9 @@ public class Game {
 				writer.write(finalValue);
 			}
 		}
+		writer.newLine();
+		writer.write(comment);
 		writer.close();
-		this.theoGUI.saveButton.setText("Saved!");
-		Thread.sleep(500);
-		this.theoGUI.saveButton.setText("Save");
 	}
 
 	public List<String> scanFile(File file) throws Exception {
@@ -203,8 +202,8 @@ public class Game {
 		return decoded;
 	}
 
-	public void saveGOL(Board board) throws Exception {
-		String name = ("test" + ".gol");
+	public void saveGOL(String input, String comment, Board board) throws Exception {
+		String name = (input + ".gol");
 		BufferedWriter writer = new BufferedWriter(new FileWriter(name));
 		writer.write(board.getHeight() + "," + board.getWidth());
 		writer.newLine();
@@ -220,6 +219,7 @@ public class Game {
 			writer.write(line);
 			writer.newLine();
 		}
+		writer.write(comment);
 		writer.close();
 	}
 
@@ -229,6 +229,7 @@ public class Game {
 		String[] dimensions = contents.get(0).split(",");
 		int height = Integer.valueOf(dimensions[0]);
 		int width = Integer.valueOf(dimensions[1]);
+		contents.remove(contents.size() - 1);
 		contents.remove(0);
 		decoded.add(height);
 		decoded.add(width);
@@ -247,10 +248,10 @@ public class Game {
 	public void loadBoard(List<Integer> input) {
 		List<Integer> decoded = new ArrayList<>(input);
 		this.board = new Board(decoded.get(0), decoded.get(1));
-		this.theoGUI = new TheoGUI(this.board.getWidth(), this.board.getHeight(), this.board, this);
+		this.mainGUI = new MainGUI(this.board.getWidth(), this.board.getHeight(), this.board, this);
 		for (int i = 2; i < decoded.size(); i = i + 2) {
 			this.board.swapIndex(decoded.get(i), decoded.get(i + 1));
-			this.theoGUI.setBoxWhite(decoded.get(i), decoded.get(i + 1));
+			this.mainGUI.setBoxWhite(decoded.get(i), decoded.get(i + 1));
 			this.board.addToLiveSet(decoded.get(i + 1), decoded.get(i));
 		}
 	}
@@ -321,7 +322,7 @@ public class Game {
 		}
 	}
 	public void swapCell(int y, int x){
-		this.theoGUI.swapBoxColour(y, x);
+		this.mainGUI.swapBoxColour(y, x);
 		board.swapIndex(y, x);
 		this.board.swapSet(x, y);
 	}
@@ -373,7 +374,7 @@ public class Game {
 		for (int i = 0; i < this.board.getHeight(); i++) {
 			for (int j = 0; j < this.board.getWidth(); j++) {
 				this.board.setIndex(i, j, false);
-				this.theoGUI.setBoxBlack(i, j);
+				this.mainGUI.setBoxBlack(i, j);
 				this.board.removeFromLiveSet(j, i);
 			}
 		}
@@ -387,7 +388,7 @@ public class Game {
 			for (int j = 0; j < this.board.getWidth(); j++) {
 				int rand = random.nextInt(2);
 				if (rand == 0) {
-					this.theoGUI.swapBoxColour(i, j);
+					this.mainGUI.swapBoxColour(i, j);
 					this.board.swapIndex(i, j);
 					this.board.swapSet(j, i);
 				} else {
@@ -407,9 +408,9 @@ public class Game {
 	}
 
 	public void setGUIPauseButtons(){
-		this.theoGUI.pauseButton.setText("Play");
-		this.theoGUI.saveButton.setVisible(true);
-		this.theoGUI.stepButton.setVisible(true);
+		this.mainGUI.pauseButton.setText("Play");
+		this.mainGUI.saveButton.setVisible(true);
+		this.mainGUI.stepButton.setVisible(true);
 	}
 
 	public void setDelay(int input) {
@@ -447,7 +448,7 @@ public class Game {
 		this.x = params[2];
 		this.y = params[3];
 		this.z = params[4];
-		this.theoGUI = new TheoGUI(this.board.getWidth(), this.board.getHeight(), this.board, this);
+		this.mainGUI = new MainGUI(this.board.getWidth(), this.board.getHeight(), this.board, this);
 		Iterator<List<Integer>> iterate = live.iterator();
 		List<List<Integer>> deads = new ArrayList<>();
 		while (iterate.hasNext()){
@@ -456,7 +457,7 @@ public class Game {
 			int j = element.get(1);
 			if (i < this.board.getWidth() && j < this.board.getHeight()){
 				this.board.swapIndex(j, i);
-				this.theoGUI.setBoxWhite(j, i);
+				this.mainGUI.setBoxWhite(j, i);
 			} else {
 				deads.add(element);
 				//this.board.removeFromLiveSet(i, j);
@@ -466,5 +467,8 @@ public class Game {
 			this.board.removeFromLiveSet(deads.get(i).get(0), deads.get(i).get(1));
 		}
 
+	}
+	public Board getBoard(){
+		return this.board;
 	}
 }
