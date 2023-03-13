@@ -471,4 +471,11 @@ public class Game {
 	public Board getBoard(){
 		return this.board;
 	}
+	public String getComment(String file) throws Exception {
+		File f = new File(file);
+		List<String> scanned = this.scanFile(f);
+		int length = scanned.size() - 1;
+		String comment = scanned.get(length);
+		return comment;
+	}
 }

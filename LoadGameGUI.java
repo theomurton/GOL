@@ -18,6 +18,7 @@ public class LoadGameGUI {
         JPanel topPane = new JPanel();
         JPanel bottomPane = new JPanel();
         BorderLayout layout = new BorderLayout();
+        JLabel comment = new JLabel("Comment: ");
         loadGameFrame.setSize(500, 300);
         this.game = game;
         this.game.setLoadGameGUI(this);
@@ -34,6 +35,18 @@ public class LoadGameGUI {
         saves.toArray(savesArray);
 
         JComboBox<String> savesBox = new JComboBox<String>(savesArray);
+        JLabel commentText = new JLabel(savesBox.getSelectedItem().toString());
+        savesBox.addItemListener(new ItemListener(){
+            public void itemStateChanged(ItemEvent itemEvent){
+                try{
+                commentText.setText(game.getComment(savesBox.getSelectedItem().toString()));
+                //System.out.println(game.getComment(savesBox.getSelectedItem().toString()));
+                } catch(Exception s){
+
+                }
+            }
+
+        });
         SavesButton savesButton = new SavesButton("Load Save", this.game);
         savesButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -83,6 +96,8 @@ public class LoadGameGUI {
         topPane.add(yBox);
         topPane.add(zLabel);
         topPane.add(zBox);
+        bottomPane.add(comment);
+        bottomPane.add(commentText);
         bottomPane.add(savesButton);
         loadGameFrame.add(BorderLayout.NORTH, topPane);
         loadGameFrame.add(BorderLayout.SOUTH, bottomPane);
