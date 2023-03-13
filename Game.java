@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
 import java.lang.Math;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Game {
 	private int x;
@@ -54,13 +56,19 @@ public class Game {
 			this.board = new Board(this.parameters[0], this.parameters[1]);
 			this.mainGUI = new MainGUI(board.getWidth(), board.getHeight(), board, this);
 		} else if (this.getState().equals("load")) {
-			this.loadGame(this.filename);
+				this.loadGame(this.filename);
 		}
 	}
 
 	public void loadGame(String file) throws Exception {
+		Pattern pattern = Pattern.compile("(.*\\.gol)");
+		Matcher match = pattern.matcher(this.filename);
 		File givenFile = new File(file);
+		if (match.matches()){
+			this.loadBoard(this.decodeGOL(givenFile));
+		} else {
 		this.loadBoard(this.decodeLoad(givenFile));
+		}
 	}
 
 	public void gameLoop() throws Exception {

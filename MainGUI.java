@@ -275,6 +275,13 @@ public class MainGUI implements ChangeListener {
 
         }
     }
+    public void saveGOL(String string, String comment, Board board) {
+        try {
+            this.game.saveGOL(string, comment, board);
+        } catch (Exception er) {
+
+        }
+    }
 
     public Color getBoxColour(int y, int x) {
         return this.buttons[y][x].getBackground();
