@@ -18,14 +18,14 @@ public class Game {
 	private boolean paused = true;
 	private String state = "new";
 	private int[] parameters;
-	//height, width, x, y, z
+	// height, width, x, y, z
 	private boolean step = false;
 	private boolean reset = false;
 	private String filename;
 	private NewGameGUI newGameGUI;
 	private LoadGameGUI loadGameGUI;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		Game game = new Game();
 		game.introGUI = new IntroGUI(game);
 	}
@@ -34,13 +34,15 @@ public class Game {
 		this.newGameGUI = newGameGUI;
 	}
 
-	public int getX(){
+	public int getX() {
 		return this.x;
 	}
-	public int getY(){
+
+	public int getY() {
 		return this.y;
 	}
-	public int getZ(){
+
+	public int getZ() {
 		return this.z;
 	}
 
@@ -48,7 +50,7 @@ public class Game {
 		this.loadGameGUI = loadGameGUI;
 	}
 
-	public void newGame() throws Exception {
+	public void newGame() {
 		this.x = this.parameters[2];
 		this.y = this.parameters[3];
 		this.z = this.parameters[4];
@@ -56,85 +58,108 @@ public class Game {
 			this.board = new Board(this.parameters[0], this.parameters[1]);
 			this.mainGUI = new MainGUI(board.getWidth(), board.getHeight(), board, this);
 		} else if (this.getState().equals("load")) {
+			try {
 				this.loadGame(this.filename);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				return;
+			}
 		}
 	}
 
-	public void loadGame(String file) throws Exception {
+	public void loadGame(String file) {
 		Pattern pattern = Pattern.compile("(.*\\.gol)");
 		Matcher match = pattern.matcher(this.filename);
 		File givenFile = new File(file);
-		if (match.matches()){
-			this.loadBoard(this.decodeGOL(givenFile));
-		} else {
-		this.loadBoard(this.decodeLoad(givenFile));
-		}
-	}
-
-	public void gameLoop() throws Exception {
-		while (!this.paused) {
-			this.updateBoard(this.board);
-			Thread.sleep(this.delay);
-		}
-	}
-
-	public void saveGameBoard(String input, String comment, Board board) throws Exception {
-		this.paused = true;
-		String name = input;
-		BufferedWriter writer = new BufferedWriter(new FileWriter(name));
-		writer.write(board.getHeight() + "," + board.getWidth());
-		writer.newLine();
-		String line = "";
-		for (int i = 0; i < board.getHeight(); i++) {
-			for (int j = 0; j < board.getWidth(); j++) {
-				if (board.getIndex(i, j)) {
-					line += "1";
-				} else {
-					line += "0";
-				}
-			}
-		}
-		boolean full;
-		String character = String.valueOf(line.charAt(0));
-		if (character.equals("0")) {
-			writer.append("e");
-			full = false;
-		} else {
-			writer.append("f");
-			full = true;
-		}
-		int counter = 1;
-		for (int i = 1; i < line.length(); i++) {
-			String specificCharacter = String.valueOf(line.charAt(i));
-			boolean tempBool = full;
-			if (specificCharacter.equals("0")) {
-				full = false;
-				counter++;
+		try {
+			if (match.matches()) {
+				this.loadBoard(this.decodeGOL(givenFile));
 			} else {
-				full = true;
-				counter++;
+				this.loadBoard(this.decodeLoad(givenFile));
 			}
-			if (tempBool != full && i != 0) {
-				String value = Integer.toString(counter - 1);
-				writer.write(value);
-				if (full) {
-					writer.append("f");
-				} else {
-					writer.append("e");
-				}
-				counter = 1;
-			}
-			if (i == line.length() - 1) {
-				String finalValue = Integer.toString(counter);
-				writer.write(finalValue);
-			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return;
 		}
-		writer.newLine();
-		writer.write(comment);
-		writer.close();
 	}
 
-	public List<String> scanFile(File file) throws Exception {
+	public void gameLoop() {
+		while (!this.paused) {
+			try {
+				this.updateBoard(this.board);
+				Thread.sleep(this.delay);
+			} catch (InterruptedException i) {
+				System.out.println(i.getMessage());
+				return;
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				return;
+			}
+		}
+	}
+
+	public void saveGameBoard(String input, String comment, Board board) {
+		try {
+			this.paused = true;
+			String name = input;
+			BufferedWriter writer = new BufferedWriter(new FileWriter(name));
+			writer.write(board.getHeight() + "," + board.getWidth());
+			writer.newLine();
+			String line = "";
+			for (int i = 0; i < board.getHeight(); i++) {
+				for (int j = 0; j < board.getWidth(); j++) {
+					if (board.getIndex(i, j)) {
+						line += "1";
+					} else {
+						line += "0";
+					}
+				}
+			}
+			boolean full;
+			String character = String.valueOf(line.charAt(0));
+			if (character.equals("0")) {
+				writer.append("e");
+				full = false;
+			} else {
+				writer.append("f");
+				full = true;
+			}
+			int counter = 1;
+			for (int i = 1; i < line.length(); i++) {
+				String specificCharacter = String.valueOf(line.charAt(i));
+				boolean tempBool = full;
+				if (specificCharacter.equals("0")) {
+					full = false;
+					counter++;
+				} else {
+					full = true;
+					counter++;
+				}
+				if (tempBool != full && i != 0) {
+					String value = Integer.toString(counter - 1);
+					writer.write(value);
+					if (full) {
+						writer.append("f");
+					} else {
+						writer.append("e");
+					}
+					counter = 1;
+				}
+				if (i == line.length() - 1) {
+					String finalValue = Integer.toString(counter);
+					writer.write(finalValue);
+				}
+			}
+			writer.newLine();
+			writer.write(comment);
+			writer.close();
+		} catch (IOException i) {
+			System.out.println(i.getMessage());
+			return;
+		}
+	}
+
+	public List<String> scanFile(File file) throws FileNotFoundException {
 		Scanner scan = new Scanner(file);
 		List<String> scanned = new ArrayList<>();
 		while (scan.hasNextLine()) {
@@ -145,7 +170,7 @@ public class Game {
 	}
 
 	// will return a list of coordinates to swap
-	public List<Integer> decodeLoad(File file) throws Exception {
+	public List<Integer> decodeLoad(File file) throws FileNotFoundException {
 		// returns array with height and width as first two elements, then y and x (in
 		// that order) of all live cells
 		List<Integer> decoded = new ArrayList<>();
@@ -210,28 +235,32 @@ public class Game {
 		return decoded;
 	}
 
-	public void saveGOL(String input, String comment, Board board) throws Exception {
-		String name = (input + ".gol");
-		BufferedWriter writer = new BufferedWriter(new FileWriter(name));
-		writer.write(board.getHeight() + "," + board.getWidth());
-		writer.newLine();
-		for (int i = 0; i < board.getHeight(); i++) {
-			String line = "";
-			for (int j = 0; j < board.getWidth(); j++) {
-				if (board.getIndex(i, j)) {
-					line += "1";
-				} else {
-					line += "0";
-				}
-			}
-			writer.write(line);
+	public void saveGOL(String input, String comment, Board board) {
+		try {
+			String name = (input + ".gol");
+			BufferedWriter writer = new BufferedWriter(new FileWriter(name));
+			writer.write(board.getHeight() + "," + board.getWidth());
 			writer.newLine();
+			for (int i = 0; i < board.getHeight(); i++) {
+				String line = "";
+				for (int j = 0; j < board.getWidth(); j++) {
+					if (board.getIndex(i, j)) {
+						line += "1";
+					} else {
+						line += "0";
+					}
+				}
+				writer.write(line);
+				writer.newLine();
+			}
+			writer.write(comment);
+			writer.close();
+		} catch (IOException i) {
+			System.out.println(i.getMessage());
 		}
-		writer.write(comment);
-		writer.close();
 	}
 
-	public List<Integer> decodeGOL(File file) throws Exception {
+	public List<Integer> decodeGOL(File file) throws FileNotFoundException {
 		List<Integer> decoded = new ArrayList<>();
 		List<String> contents = this.scanFile(file);
 		String[] dimensions = contents.get(0).split(",");
@@ -264,19 +293,22 @@ public class Game {
 		}
 	}
 
-	public void updateBoard(Board board) throws Exception {
+	public void updateBoard(Board board) {
+		try{
 		HashSet<List<Integer>> liveSet = this.board.getLiveSet();
 		HashMap<List<Integer>, Integer> data = new HashMap<>();
 		HashSet<List<Integer>> checked = new HashSet<>();
 		Iterator<List<Integer>> it = liveSet.iterator();
 		int counter = 0;
-		/*Iterator<List<Integer>> its = liveSet.iterator();
-		int counters = 0;
-		while (its.hasNext()){
-			List<Integer> coordsa = its.next();
-			//System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counters);
-			counters++;
-		}*/
+		/*
+		 * Iterator<List<Integer>> its = liveSet.iterator();
+		 * int counters = 0;
+		 * while (its.hasNext()){
+		 * List<Integer> coordsa = its.next();
+		 * //System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counters);
+		 * counters++;
+		 * }
+		 */
 		while (it.hasNext()) {
 			List<Integer> element = it.next();
 			for (int x = -1; x <= 1; x++) {
@@ -328,12 +360,18 @@ public class Game {
 			this.paused = true;
 			this.setGUIPauseButtons();
 		}
+	} catch (Exception e){
+		System.out.println(e.getMessage());
+		return;
 	}
-	public void swapCell(int y, int x){
+	}
+
+	public void swapCell(int y, int x) {
 		this.mainGUI.swapBoxColour(y, x);
 		board.swapIndex(y, x);
 		this.board.swapSet(x, y);
 	}
+
 	public int scanBoard(Board board, int y, int x) {
 		int number = 0;
 		for (int i = -1; i <= 1; i++) {
@@ -415,18 +453,18 @@ public class Game {
 		}
 	}
 
-	public void setGUIPauseButtons(){
+	public void setGUIPauseButtons() {
 		this.mainGUI.pauseButton.setText("Play");
 		this.mainGUI.saveButton.setVisible(true);
 		this.mainGUI.stepButton.setVisible(true);
 	}
 
 	public void setDelay(int input) {
-		//RHS of a normal distribution curve: higher control at higher speeds
-		this.delay = (int) Math.round(1000*Math.pow(2.718, -((Math.pow(input*0.003, 2)))));
+		// RHS of a normal distribution curve: higher control at higher speeds
+		this.delay = (int) Math.round(1000 * Math.pow(2.718, -((Math.pow(input * 0.003, 2)))));
 	}
 
-	public void requestStep() throws Exception {
+	public void requestStep() {
 		this.updateBoard(this.board);
 	}
 
@@ -441,16 +479,19 @@ public class Game {
 	public void setState(String state) {
 		this.state = state;
 	}
-	public void update(int[] params){
+
+	public void update(int[] params) {
 		HashSet<List<Integer>> live = this.board.getLiveSet();
-		/*Iterator<List<Integer>> it = live.iterator();
-		int counter = 0;
-		while (it.hasNext()){
-			List<Integer> coordsa = it.next();
-			System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counter);
-			counter++;
-		}*/
-		//System.out.println("");
+		/*
+		 * Iterator<List<Integer>> it = live.iterator();
+		 * int counter = 0;
+		 * while (it.hasNext()){
+		 * List<Integer> coordsa = it.next();
+		 * System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counter);
+		 * counter++;
+		 * }
+		 */
+		// System.out.println("");
 		this.board = new Board(params[1], params[0]);
 		this.board.setLiveSet(live);
 		this.x = params[2];
@@ -459,27 +500,29 @@ public class Game {
 		this.mainGUI = new MainGUI(this.board.getWidth(), this.board.getHeight(), this.board, this);
 		Iterator<List<Integer>> iterate = live.iterator();
 		List<List<Integer>> deads = new ArrayList<>();
-		while (iterate.hasNext()){
+		while (iterate.hasNext()) {
 			List<Integer> element = iterate.next();
 			int i = element.get(0);
 			int j = element.get(1);
-			if (i < this.board.getWidth() && j < this.board.getHeight()){
+			if (i < this.board.getWidth() && j < this.board.getHeight()) {
 				this.board.swapIndex(j, i);
 				this.mainGUI.setBoxWhite(j, i);
 			} else {
 				deads.add(element);
-				//this.board.removeFromLiveSet(i, j);
+				// this.board.removeFromLiveSet(i, j);
 			}
 		}
-		for (int i = 0; i < deads.size(); i++){
+		for (int i = 0; i < deads.size(); i++) {
 			this.board.removeFromLiveSet(deads.get(i).get(0), deads.get(i).get(1));
 		}
 
 	}
-	public Board getBoard(){
+
+	public Board getBoard() {
 		return this.board;
 	}
-	public String getComment(String file) throws Exception {
+
+	public String getComment(String file) throws FileNotFoundException{
 		File f = new File(file);
 		List<String> scanned = this.scanFile(f);
 		int length = scanned.size() - 1;

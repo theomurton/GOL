@@ -223,7 +223,7 @@ public class MainGUI implements ChangeListener {
         this.game.setDelay(this.slider.getValue());
     }
 
-    public void step() throws Exception {
+    public void step() {
         this.game.requestStep();
     }
 
@@ -301,8 +301,6 @@ class PauseButton extends JButton implements Runnable {
     public void run() {
         try {
             this.game.gameLoop();
-        } catch (InterruptedException ee) {
-            //System.out.println("Interrupted.");
         } catch (Exception e) {
         }
     }

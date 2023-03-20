@@ -105,7 +105,7 @@ public class LoadGameGUI {
 
     }
 
-    public void load(String file) throws Exception {
+    public void load(String file) {
         this.game.loadGame(file);
     }
 }
