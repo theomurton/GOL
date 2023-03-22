@@ -21,9 +21,11 @@ public class MainGUI implements ChangeListener {
     protected JButton loadButton;
     private JButton resetButton;
     private boolean pauseState = false;
-    //protected JTextField input;
+    // protected JTextField input;
     private Game game;
-    private int[] parameters = {10, 20, 0, 0, 0};
+    private int[] parameters = { 10, 20, 0, 0, 0 };
+
+    // this is the main GUI.
 
     public MainGUI(int height, int width, Board board, Game game) {
         this.game = game;
@@ -41,6 +43,7 @@ public class MainGUI implements ChangeListener {
         layout = new GridLayout(width, height);
         panel.setLayout(layout);
         frame.add(panel);
+        // adding the grid of buttons which are our cells
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 final int x = i;
@@ -57,15 +60,18 @@ public class MainGUI implements ChangeListener {
                 panel.add(buttons[i][j]);
             }
         }
+        // implementing multithreading here with play and pause
         topPanel = new JPanel();
         pauseButton = new PauseButton("Play", this.game, this);
         pauseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // this happens if game is not paused
                 if (!game.getPauseState()) {
                     pauseButton.setText("Play");
                     saveButton.setVisible(true);
                     stepButton.setVisible(true);
                 } else {
+                    // this happens if game is paused (new thread begins)
                     Thread pauseThread = new Thread(pauseButton);
                     pauseButton.setText("Pause");
                     saveButton.setVisible(false);
@@ -75,12 +81,12 @@ public class MainGUI implements ChangeListener {
                 game.swapPaused();
             }
         });
-	loadButton = new JButton("Load");
-	loadButton.addActionListener(new ActionListener(){
-		public void actionPerformed(ActionEvent e){
-			load();
-		}
-	});
+        loadButton = new JButton("Load");
+        loadButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                load();
+            }
+        });
         randomButton = new JButton("Randomise");
         randomButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -116,9 +122,9 @@ public class MainGUI implements ChangeListener {
                 reset();
             }
         });
-        slider = new JSlider(3, 1000, 10);
+        slider = new JSlider(3, 1000, 504);
         slider.addChangeListener(this);
-        //input = new JTextField("Enter save name",9);
+        // input = new JTextField("Enter save name",9);
         JLabel speedLabel = new JLabel("Speed: ");
         JLabel xLabel = new JLabel("Set x");
         JLabel yLabel = new JLabel("Set y");
@@ -128,48 +134,48 @@ public class MainGUI implements ChangeListener {
             intChoices[i - 1] = Integer.toString(i);
         }
         JComboBox<String> xBox = new JComboBox<String>(intChoices);
-        xBox.setSelectedIndex(this.game.getX()-1);
+        xBox.setSelectedIndex(this.game.getX() - 1);
         JComboBox<String> yBox = new JComboBox<String>(intChoices);
-        yBox.setSelectedIndex(this.game.getY()-1);
+        yBox.setSelectedIndex(this.game.getY() - 1);
         JComboBox<String> zBox = new JComboBox<String>(intChoices);
-        zBox.setSelectedIndex(this.game.getZ()-1);
-        String[] sizeChoices = new String[47];
-        for (int i = 4; i <= 50; i++) {
+        zBox.setSelectedIndex(this.game.getZ() - 1);
+        String[] sizeChoices = new String[197];
+        for (int i = 4; i <= 200; i++) {
             sizeChoices[i - 4] = Integer.toString(i);
         }
         JLabel heightLabel = new JLabel("Adjust Height");
         JLabel widthLabel = new JLabel("Adjust Width");
         JComboBox<String> heightBox = new JComboBox<String>(sizeChoices);
-        heightBox.setSelectedIndex(height -4);
+        heightBox.setSelectedIndex(height - 4);
         JComboBox<String> widthBox = new JComboBox<String>(sizeChoices);
-        widthBox.setSelectedIndex(width -4);
+        widthBox.setSelectedIndex(width - 4);
         xBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
-                //parameters[2] = Integer.parseInt((String) xBox.getSelectedItem());
+                // parameters[2] = Integer.parseInt((String) xBox.getSelectedItem());
                 updateButton.setVisible(true);
             }
         });
         yBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
-                //parameters[3] = Integer.parseInt((String) yBox.getSelectedItem());
+                // parameters[3] = Integer.parseInt((String) yBox.getSelectedItem());
                 updateButton.setVisible(true);
             }
         });
         zBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
-                //parameters[4] = Integer.parseInt((String) zBox.getSelectedItem());
+                // parameters[4] = Integer.parseInt((String) zBox.getSelectedItem());
                 updateButton.setVisible(true);
             }
         });
         heightBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
-                //parameters[4] = Integer.parseInt((String) zBox.getSelectedItem());
+                // parameters[4] = Integer.parseInt((String) zBox.getSelectedItem());
                 updateButton.setVisible(true);
             }
         });
         widthBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent itemEvent) {
-                //parameters[4] = Integer.parseInt((String) zBox.getSelectedItem());
+                // parameters[4] = Integer.parseInt((String) zBox.getSelectedItem());
                 updateButton.setVisible(true);
             }
         });
@@ -181,14 +187,15 @@ public class MainGUI implements ChangeListener {
                 parameters[2] = Integer.parseInt((String) xBox.getSelectedItem());
                 parameters[3] = Integer.parseInt((String) yBox.getSelectedItem());
                 parameters[4] = Integer.parseInt((String) zBox.getSelectedItem());
-                //System.out.println(parameters[2] + " " + parameters[3] + " " + parameters[4]);
+                // System.out.println(parameters[2] + " " + parameters[3] + " " +
+                // parameters[4]);
                 frame.dispose();
                 update(parameters);
             }
         });
         updateButton.setVisible(false);
-        JLabel x = new JLabel("x: "+ this.game.getX());
-        JLabel y = new JLabel("y: "+ this.game.getY());
+        JLabel x = new JLabel("x: " + this.game.getX());
+        JLabel y = new JLabel("y: " + this.game.getY());
         JLabel z = new JLabel("z: " + this.game.getZ());
         topPanel.add(speedLabel);
         topPanel.add(slider);
@@ -197,7 +204,7 @@ public class MainGUI implements ChangeListener {
         topPanel.add(resetButton);
         topPanel.add(randomButton);
         topPanel.add(saveButton);
-        //topPanel.add(input);
+        // topPanel.add(input);
         topPanel.add(xLabel);
         topPanel.add(xBox);
         topPanel.add(yLabel);
@@ -212,7 +219,7 @@ public class MainGUI implements ChangeListener {
         topPanel.add(heightBox);
         topPanel.add(heightLabel);
         topPanel.add(widthBox);
-	topPanel.add(loadButton);
+        topPanel.add(loadButton);
         frame.add(BorderLayout.NORTH, topPanel);
         // frame.add(panel);
         panel.setVisible(true);
@@ -230,15 +237,17 @@ public class MainGUI implements ChangeListener {
     public void reset() {
         this.game.reset();
     }
-    public void update(int[] parameters){
+
+    public void update(int[] parameters) {
         this.game.update(parameters);
     }
-    public void load(){
-	frame.dispose();
-	game.swapPaused();
-	Game newGame = new Game();
-    newGame.setState("load");
-	LoadGameGUI load = new LoadGameGUI(newGame);
+
+    public void load() {
+        frame.dispose();
+        game.swapPaused();
+        Game newGame = new Game();
+        newGame.setState("load");
+        LoadGameGUI load = new LoadGameGUI(newGame);
     }
 
     public void swapBoxColour(int y, int x) {
@@ -275,6 +284,7 @@ public class MainGUI implements ChangeListener {
 
         }
     }
+
     public void saveGOL(String string, String comment, Board board) {
         try {
             this.game.saveGOL(string, comment, board);
@@ -288,6 +298,7 @@ public class MainGUI implements ChangeListener {
     }
 }
 
+// separate classes for buttons which involve multithreading
 class PauseButton extends JButton implements Runnable {
     Game game;
     MainGUI mainGui;
@@ -319,10 +330,10 @@ class SaveButton extends JButton implements Runnable {
 
     public void run() {
         try {
-            //String value = this.mainGui.input.getText();
+            // String value = this.mainGui.input.getText();
             this.board = this.game.getBoard();
             SavePopup save = new SavePopup(this.mainGui, this.board);
-            //this.mainGui.save(value);
+            // this.mainGui.save(value);
         } catch (Exception e) {
         }
     }

@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.util.*;
 
+//GUI for if user wants to start a new game from scratch
 public class NewGameGUI {
     private int[] parameters;
     private Game game;
@@ -28,8 +29,8 @@ public class NewGameGUI {
         for (int i = 1; i <= 8; i++) {
             intChoices[i - 1] = Integer.toString(i);
         }
-        String[] sizeChoices = new String[47];
-        for (int i = 4; i <= 50; i++) {
+        String[] sizeChoices = new String[197];
+        for (int i = 4; i <= 200; i++) {
             sizeChoices[i - 4] = Integer.toString(i);
         }
         JComboBox<String> heightBox = new JComboBox<String>(sizeChoices);
@@ -122,7 +123,8 @@ public class NewGameGUI {
                             parameters[4] = Integer.parseInt((String) zBox.getSelectedItem());
                             setup2Frame.dispose();
                             game.setParameters(parameters);
-                            //System.out.println("paramaters" +parameters[0] + " "+parameters[1] + " "+parameters[2] + " "+parameters[3] + " "+parameters[4]);
+                            // System.out.println("paramaters" +parameters[0] + " "+parameters[1] + "
+                            // "+parameters[2] + " "+parameters[3] + " "+parameters[4]);
                             game.newGame();
                         }
 

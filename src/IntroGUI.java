@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+//first gui the user sees.
+//changes the state attribute of its game attribute to 'new' or 'load' depending on the selected button, then loads the relevant GUI
 public class IntroGUI {
     private int[] parameters = new int[] { 4, 4, 1, 1, 1 };
     private Game game;

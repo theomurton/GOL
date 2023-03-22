@@ -6,6 +6,8 @@ import java.lang.Math;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+//the vast majority of the comments are in this game class as the code in the guis is relatively simple and self explanatory.
+
 public class Game {
 	private int x;
 	private int y;
@@ -71,7 +73,8 @@ public class Game {
 
 	// this method loads the board and distinguishes between files with and without
 	// a .gol suffix to determine which loading algorithm to use.
-	//notice both boards use the same load method 
+	// notice both boards use the same load method to save on code as the decode
+	// methods will produce the same output
 	public void loadGame(String file) {
 		Pattern pattern = Pattern.compile("(.*\\.gol)");
 		Matcher match = pattern.matcher(this.filename);
@@ -183,7 +186,8 @@ public class Game {
 	public List<Integer> decodeLoad(File file) throws FileNotFoundException {
 		// returns array with height and width as first two elements, then y and x (in
 		// that order) of all live cells to be loaded
-		//This code is a bit big but it has to be very general to accommodate all potential board dimensions
+		// This code is a bit big but it has to be very general to accommodate all
+		// potential board dimensions
 		List<Integer> decoded = new ArrayList<>();
 		List<String> contents = this.scanFile(file);
 		String[] dimensions = contents.get(0).split(",");
@@ -245,7 +249,8 @@ public class Game {
 		}
 		return decoded;
 	}
-	//method for saving as the basic gol file.
+
+	// method for saving as the basic gol file.
 	public void saveGOL(String input, String comment, Board board) {
 		try {
 			String name = (input + ".gol");
@@ -270,6 +275,7 @@ public class Game {
 			System.out.println(i.getMessage());
 		}
 	}
+
 	// method for decoding the basic gol file.
 	public List<Integer> decodeGOL(File file) throws FileNotFoundException {
 		List<Integer> decoded = new ArrayList<>();
@@ -292,7 +298,9 @@ public class Game {
 		}
 		return decoded;
 	}
-	//takes a list of live cell coordinates and swaps them. It can therefore receive output from either load method.
+
+	// takes a list of live cell coordinates and swaps them. It can therefore
+	// receive output from either load method.
 	public void loadBoard(List<Integer> input) {
 		List<Integer> decoded = new ArrayList<>(input);
 		this.board = new Board(decoded.get(0), decoded.get(1));
@@ -304,8 +312,11 @@ public class Game {
 		}
 	}
 
+	// the fundamental method for getting the next generation
 	public void updateBoard(Board board) {
 		try {
+			// the hash map data is has a coordinates as the key and the number of adjacent
+			// live squares as the value
 			HashSet<List<Integer>> liveSet = this.board.getLiveSet();
 			HashMap<List<Integer>, Integer> data = new HashMap<>();
 			HashSet<List<Integer>> checked = new HashSet<>();
@@ -320,6 +331,8 @@ public class Game {
 			 * counters++;
 			 * }
 			 */
+			// iterates through the live set of coordinates and their adjacent squares to
+			// save on resources
 			while (it.hasNext()) {
 				List<Integer> element = it.next();
 				for (int x = -1; x <= 1; x++) {
@@ -349,6 +362,8 @@ public class Game {
 					}
 				}
 			}
+			// iterating through data hash map as described above to change cells in
+			// accordance with x y z
 			Iterator<List<Integer>> iter = data.keySet().iterator();
 			while (iter.hasNext()) {
 				List<Integer> ij = iter.next();
@@ -377,12 +392,14 @@ public class Game {
 		}
 	}
 
+	// basic swap cell method to swap cells of the board
 	public void swapCell(int y, int x) {
 		this.mainGUI.swapBoxColour(y, x);
 		board.swapIndex(y, x);
 		this.board.swapSet(x, y);
 	}
 
+	// scans a cell of the board's adjacnet cells to see how many are full
 	public int scanBoard(Board board, int y, int x) {
 		int number = 0;
 		for (int i = -1; i <= 1; i++) {
@@ -491,6 +508,7 @@ public class Game {
 		this.state = state;
 	}
 
+	// method for updating board settings.
 	public void update(int[] params) {
 		HashSet<List<Integer>> live = this.board.getLiveSet();
 		/*
@@ -510,6 +528,7 @@ public class Game {
 		this.z = params[4];
 		this.mainGUI = new MainGUI(this.board.getWidth(), this.board.getHeight(), this.board, this);
 		Iterator<List<Integer>> iterate = live.iterator();
+		// chops off cells from the edges if the board is made smaller
 		List<List<Integer>> deads = new ArrayList<>();
 		while (iterate.hasNext()) {
 			List<Integer> element = iterate.next();
@@ -533,6 +552,7 @@ public class Game {
 		return this.board;
 	}
 
+	// gets the comment on the loaded file
 	public String getComment(String file) throws FileNotFoundException {
 		File f = new File(file);
 		List<String> scanned = this.scanFile(f);

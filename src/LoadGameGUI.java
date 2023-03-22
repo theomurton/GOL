@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+//gui for if the user wants to load a board
 public class LoadGameGUI {
     private int count;
     private int[] parameters = new int[] { 4, 4, 1, 1, 1 };
@@ -24,6 +25,8 @@ public class LoadGameGUI {
         this.game.setLoadGameGUI(this);
         File folder = new File(".");
         ArrayList<String> saves = new ArrayList<String>();
+        // finding all the files without these extensions so the user doens't muck with
+        // code
         Pattern pattern = Pattern.compile("(.*\\.class|.*\\.java|.*\\.git)");
         for (String file : folder.list()) {
             Matcher matcher = pattern.matcher(file);
@@ -36,12 +39,12 @@ public class LoadGameGUI {
 
         JComboBox<String> savesBox = new JComboBox<String>(savesArray);
         JLabel commentText = new JLabel(savesBox.getSelectedItem().toString());
-        savesBox.addItemListener(new ItemListener(){
-            public void itemStateChanged(ItemEvent itemEvent){
-                try{
-                commentText.setText(game.getComment(savesBox.getSelectedItem().toString()));
-                //System.out.println(game.getComment(savesBox.getSelectedItem().toString()));
-                } catch(Exception s){
+        savesBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent itemEvent) {
+                try {
+                    commentText.setText(game.getComment(savesBox.getSelectedItem().toString()));
+                    // System.out.println(game.getComment(savesBox.getSelectedItem().toString()));
+                } catch (Exception s) {
 
                 }
             }

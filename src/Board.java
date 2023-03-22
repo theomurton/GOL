@@ -1,62 +1,77 @@
 import java.util.*;
+
 public class Board implements Cloneable {
 	private int height;
 	private int width;
 	private boolean[][] board;
 	private HashSet<List<Integer>> liveSet = new HashSet<List<Integer>>();
-	public Board(int height, int width){
+
+	public Board(int height, int width) {
 		this.height = height;
 		this.width = width;
 		this.setBoardSize(this.height, this.width);
 	}
-	public void setLiveSet(HashSet<List<Integer>> set){
+
+	// sets initial live set if board loaded
+	public void setLiveSet(HashSet<List<Integer>> set) {
 		this.liveSet = set;
 	}
-	public void addToLiveSet(int x, int y){
+
+	// adds a pair of coords to a live set
+	public void addToLiveSet(int x, int y) {
 		List<Integer> coords = new ArrayList<Integer>();
 		coords.add(x);
 		coords.add(y);
-		if (!this.liveSet.contains(coords)){
+		if (!this.liveSet.contains(coords)) {
 			this.liveSet.add(coords);
 		}
-		/*Iterator<List<Integer>> it = this.liveSet.iterator();
-		int counter = 0;
-		while (it.hasNext()){
-			List<Integer> coordsa = it.next();
-			System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counter);
-			counter++;
-		}
-		System.out.println("");*/
+		/*
+		 * Iterator<List<Integer>> it = this.liveSet.iterator();
+		 * int counter = 0;
+		 * while (it.hasNext()){
+		 * List<Integer> coordsa = it.next();
+		 * System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counter);
+		 * counter++;
+		 * }
+		 * System.out.println("");
+		 */
 	}
-	public void removeFromLiveSet(int x, int y){
+
+	public void removeFromLiveSet(int x, int y) {
 		List<Integer> coords = new ArrayList<>();
 		coords.add(x);
 		coords.add(y);
-		if (this.liveSet.contains(coords)){
+		if (this.liveSet.contains(coords)) {
 			this.liveSet.remove(coords);
 		}
-		/*Iterator<List<Integer>> it = this.liveSet.iterator();
-		int counter = 0;
-		while (it.hasNext()){
-			List<Integer> coordsa = it.next();
-			System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counter);
-			counter++;
-		}
-		System.out.println("");*/
+		/*
+		 * Iterator<List<Integer>> it = this.liveSet.iterator();
+		 * int counter = 0;
+		 * while (it.hasNext()){
+		 * List<Integer> coordsa = it.next();
+		 * System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counter);
+		 * counter++;
+		 * }
+		 * System.out.println("");
+		 */
 	}
-	public void swapSet(int x, int y){
+
+	// if in live set removes, if not adds
+	public void swapSet(int x, int y) {
 		List<Integer> coords = new ArrayList<>();
 		coords.add(x);
 		coords.add(y);
-		if (this.liveSet.contains(coords)){
-			this.removeFromLiveSet(x,y);
+		if (this.liveSet.contains(coords)) {
+			this.removeFromLiveSet(x, y);
 		} else {
 			this.addToLiveSet(x, y);
 		}
 	}
-	public HashSet<List<Integer>> getLiveSet(){
+
+	public HashSet<List<Integer>> getLiveSet() {
 		return this.liveSet;
 	}
+
 	public void setHeight(int height) {
 		this.height = height;
 	}
@@ -102,6 +117,8 @@ public class Board implements Cloneable {
 		return this;
 	}
 
+	// these index methods swap the value of coordinate of the boolean array that
+	// represents the board
 	public boolean getIndex(int x, int y) {
 		return this.board[x][y];
 	}
