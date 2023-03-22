@@ -18,7 +18,6 @@ public class Game {
 	private boolean paused = true;
 	private String state = "new";
 	private int[] parameters;
-	// height, width, x, y, z
 	private boolean step = false;
 	private boolean reset = false;
 	private String filename;
@@ -50,6 +49,9 @@ public class Game {
 		this.loadGameGUI = loadGameGUI;
 	}
 
+	// this is called by either NewGameGUI or LoadGameGUI. To avoid repeat code and
+	// two separate methods, we use a "state" of new or load to indicate how exactly
+	// to make the game
 	public void newGame() {
 		this.x = this.parameters[2];
 		this.y = this.parameters[3];
@@ -67,6 +69,9 @@ public class Game {
 		}
 	}
 
+	// this method loads the board and distinguishes between files with and without
+	// a .gol suffix to determine which loading algorithm to use.
+	//notice both boards use the same load method 
 	public void loadGame(String file) {
 		Pattern pattern = Pattern.compile("(.*\\.gol)");
 		Matcher match = pattern.matcher(this.filename);
@@ -83,6 +88,9 @@ public class Game {
 		}
 	}
 
+	// the main game loop. Uses the 'paused' attribute to determine when it should
+	// stop. Always runs on a separate thread when it is running (it is not always
+	// running)
 	public void gameLoop() {
 		while (!this.paused) {
 			try {
@@ -98,6 +106,7 @@ public class Game {
 		}
 	}
 
+	// this is our 'compressed' save method as outlined in the report
 	public void saveGameBoard(String input, String comment, Board board) {
 		try {
 			this.paused = true;
@@ -159,6 +168,7 @@ public class Game {
 		}
 	}
 
+	// generic scan method which is useful in other methods to save code
 	public List<String> scanFile(File file) throws FileNotFoundException {
 		Scanner scan = new Scanner(file);
 		List<String> scanned = new ArrayList<>();
@@ -169,10 +179,11 @@ public class Game {
 		return scanned;
 	}
 
-	// will return a list of coordinates to swap
+	// will return a list of coordinates to be swapped, decodes a compressed save
 	public List<Integer> decodeLoad(File file) throws FileNotFoundException {
 		// returns array with height and width as first two elements, then y and x (in
-		// that order) of all live cells
+		// that order) of all live cells to be loaded
+		//This code is a bit big but it has to be very general to accommodate all potential board dimensions
 		List<Integer> decoded = new ArrayList<>();
 		List<String> contents = this.scanFile(file);
 		String[] dimensions = contents.get(0).split(",");
@@ -234,7 +245,7 @@ public class Game {
 		}
 		return decoded;
 	}
-
+	//method for saving as the basic gol file.
 	public void saveGOL(String input, String comment, Board board) {
 		try {
 			String name = (input + ".gol");
@@ -259,7 +270,7 @@ public class Game {
 			System.out.println(i.getMessage());
 		}
 	}
-
+	// method for decoding the basic gol file.
 	public List<Integer> decodeGOL(File file) throws FileNotFoundException {
 		List<Integer> decoded = new ArrayList<>();
 		List<String> contents = this.scanFile(file);
@@ -281,7 +292,7 @@ public class Game {
 		}
 		return decoded;
 	}
-
+	//takes a list of live cell coordinates and swaps them. It can therefore receive output from either load method.
 	public void loadBoard(List<Integer> input) {
 		List<Integer> decoded = new ArrayList<>(input);
 		this.board = new Board(decoded.get(0), decoded.get(1));
@@ -294,76 +305,76 @@ public class Game {
 	}
 
 	public void updateBoard(Board board) {
-		try{
-		HashSet<List<Integer>> liveSet = this.board.getLiveSet();
-		HashMap<List<Integer>, Integer> data = new HashMap<>();
-		HashSet<List<Integer>> checked = new HashSet<>();
-		Iterator<List<Integer>> it = liveSet.iterator();
-		int counter = 0;
-		/*
-		 * Iterator<List<Integer>> its = liveSet.iterator();
-		 * int counters = 0;
-		 * while (its.hasNext()){
-		 * List<Integer> coordsa = its.next();
-		 * //System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counters);
-		 * counters++;
-		 * }
-		 */
-		while (it.hasNext()) {
-			List<Integer> element = it.next();
-			for (int x = -1; x <= 1; x++) {
-				for (int y = -1; y <= 1; y++) {
-					int xcoord = element.get(0) + x;
-					int ycoord = element.get(1) + y;
-					if (xcoord == -1) {
-						xcoord = board.getWidth() - 1;
-					}
-					if (ycoord == -1) {
-						ycoord = board.getHeight() - 1;
-					}
-					if (xcoord == board.getWidth()) {
-						xcoord = 0;
-					}
-					if (ycoord == board.getHeight()) {
-						ycoord = 0;
-					}
-					List<Integer> coords = new ArrayList<>();
-					coords.add(xcoord);
-					coords.add(ycoord);
-					if (!checked.contains(coords)) {
-						int filled = this.scanBoard(board, coords.get(1), coords.get(0));
-						data.put(coords, filled);
-						checked.add(coords);
+		try {
+			HashSet<List<Integer>> liveSet = this.board.getLiveSet();
+			HashMap<List<Integer>, Integer> data = new HashMap<>();
+			HashSet<List<Integer>> checked = new HashSet<>();
+			Iterator<List<Integer>> it = liveSet.iterator();
+			int counter = 0;
+			/*
+			 * Iterator<List<Integer>> its = liveSet.iterator();
+			 * int counters = 0;
+			 * while (its.hasNext()){
+			 * List<Integer> coordsa = its.next();
+			 * //System.out.println(coordsa.get(0) + " " + coordsa.get(1) + " " + counters);
+			 * counters++;
+			 * }
+			 */
+			while (it.hasNext()) {
+				List<Integer> element = it.next();
+				for (int x = -1; x <= 1; x++) {
+					for (int y = -1; y <= 1; y++) {
+						int xcoord = element.get(0) + x;
+						int ycoord = element.get(1) + y;
+						if (xcoord == -1) {
+							xcoord = board.getWidth() - 1;
+						}
+						if (ycoord == -1) {
+							ycoord = board.getHeight() - 1;
+						}
+						if (xcoord == board.getWidth()) {
+							xcoord = 0;
+						}
+						if (ycoord == board.getHeight()) {
+							ycoord = 0;
+						}
+						List<Integer> coords = new ArrayList<>();
+						coords.add(xcoord);
+						coords.add(ycoord);
+						if (!checked.contains(coords)) {
+							int filled = this.scanBoard(board, coords.get(1), coords.get(0));
+							data.put(coords, filled);
+							checked.add(coords);
+						}
 					}
 				}
 			}
-		}
-		Iterator<List<Integer>> iter = data.keySet().iterator();
-		while (iter.hasNext()) {
-			List<Integer> ij = iter.next();
-			int y = ij.get(1);
-			int x = ij.get(0);
-			if (board.getIndex(y, x) == true && data.get(ij) < this.x) {
-				this.swapCell(y, x);
-				counter++;
-			} else if (board.getIndex(y, x) == true && data.get(ij) >= this.x && data.get(ij) <= this.y) {
-				// nothing happens
-			} else if (board.getIndex(y, x) == true && data.get(ij) > this.y) {
-				this.swapCell(y, x);
-				counter++;
-			} else if (board.getIndex(y, x) == false && data.get(ij) == this.z) {
-				this.swapCell(y, x);
-				counter++;
+			Iterator<List<Integer>> iter = data.keySet().iterator();
+			while (iter.hasNext()) {
+				List<Integer> ij = iter.next();
+				int y = ij.get(1);
+				int x = ij.get(0);
+				if (board.getIndex(y, x) == true && data.get(ij) < this.x) {
+					this.swapCell(y, x);
+					counter++;
+				} else if (board.getIndex(y, x) == true && data.get(ij) >= this.x && data.get(ij) <= this.y) {
+					// nothing happens
+				} else if (board.getIndex(y, x) == true && data.get(ij) > this.y) {
+					this.swapCell(y, x);
+					counter++;
+				} else if (board.getIndex(y, x) == false && data.get(ij) == this.z) {
+					this.swapCell(y, x);
+					counter++;
+				}
 			}
+			if (counter == 0) {
+				this.paused = true;
+				this.setGUIPauseButtons();
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return;
 		}
-		if (counter == 0) {
-			this.paused = true;
-			this.setGUIPauseButtons();
-		}
-	} catch (Exception e){
-		System.out.println(e.getMessage());
-		return;
-	}
 	}
 
 	public void swapCell(int y, int x) {
@@ -522,7 +533,7 @@ public class Game {
 		return this.board;
 	}
 
-	public String getComment(String file) throws FileNotFoundException{
+	public String getComment(String file) throws FileNotFoundException {
 		File f = new File(file);
 		List<String> scanned = this.scanFile(f);
 		int length = scanned.size() - 1;
